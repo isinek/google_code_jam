@@ -8,30 +8,42 @@ using namespace std;
 
 void solution()
 {
-	unsigned long long int n, x, prev_x, result = 0;
-	long long int len_diff, mult;
-	char sx[300] = {0, }, prev_sx[300] = {0, };
+	unsigned long long int n, result = 0;
+	unsigned short carry;
+	char x[150] = {0, }, new_x[150] = {0, }, prev_x[150] = {0, };
 	scanf("%llu", &n);
 
 	for (int i = 0; i < n; ++i) {
-		scanf("%llu", &x);
-		sprintf(sx, "%llu", x);
+		scanf("%s", x);
 
-		if (i > 0) {
-			len_diff = strlen(prev_sx) - strlen(sx);
-			result += (len_diff > 0)*len_diff;
-			mult = (len_diff > 0)*(int)pow(10, len_diff) + (len_diff <= 0)*1;
-			x *= mult;
-			if (prev_x >= x + mult - 1) {
-				x *= 10;
-				++result;
-			} else if (prev_x >= x) {
-				x += (prev_x%mult) + 1;
-			}
+		if (!i) {
+			strcpy(prev_x, x);
+			continue;
 		}
 
-		prev_x = x;
-		sprintf(prev_sx, "%llu", x);
+		strcpy(new_x, x);
+		if (strlen(x) <= strlen(prev_x) && strncmp(x, prev_x, strlen(x)) < 0) {
+			for (int j = strlen(x); j <= strlen(prev_x); ++j)
+				strcat(new_x, "0");
+		} else if (strlen(x) <= strlen(prev_x) && strncmp(x, prev_x, strlen(x)) == 0) {
+			strcat(new_x, prev_x + strlen(x));
+			carry = 1;
+			for (int j = strlen(prev_x) - 1; j >= strlen(x) && carry; --j) {
+				--carry;
+				if (++new_x[j] > '9') {
+					new_x[j] = '0';
+					++carry;
+				}
+			}
+			if (carry)
+				strcat(new_x, "0");
+		} else {
+			for (int j = strlen(x); j < strlen(prev_x); ++j)
+				strcat(new_x, "0");
+		}
+
+		result += strlen(new_x) - strlen(x);
+		strcpy(prev_x, new_x);
 	}
 
 	printf("%llu\n", result);
